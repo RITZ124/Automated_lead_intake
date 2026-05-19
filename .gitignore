@@ -4,6 +4,6 @@ __pycache__/
 instance/
 .env
 token.pickle
-google_credentials.json
 oauth_credentials.json
 generated_reports/
+credentials/
