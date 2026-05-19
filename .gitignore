@@ -1,0 +1,9 @@
+venv/
+__pycache__/
+*.pyc
+instance/
+.env
+token.pickle
+google_credentials.json
+oauth_credentials.json
+generated_reports/

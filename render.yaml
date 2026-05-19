@@ -1,0 +1,6 @@
+services:
+  - type: web
+    name: automated-lead-intake
+    runtime: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn run:app
