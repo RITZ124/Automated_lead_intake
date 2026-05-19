@@ -1,10 +1,6 @@
 import os
-
 import resend
-
-from dotenv import load_dotenv
-
-load_dotenv()
+import base64
 
 resend.api_key = os.getenv(
     "RESEND_API_KEY"
@@ -12,53 +8,44 @@ resend.api_key = os.getenv(
 
 
 def send_report_email(
-
     recipient_email,
-
     recipient_name,
-
     company_name,
-
     pdf_path
-
 ):
 
     try:
 
-        params = {
+        with open(
+            pdf_path,
+            "rb"
+        ) as f:
 
-            "from": "onboarding@resend.dev",
+            pdf_content = (
+                base64.b64encode(
+                    f.read()
+                )
+                .decode("utf-8")
+            )
 
-            "to": [recipient_email],
+        resend.Emails.send({
 
-            "subject": f"AI Audit Report for {company_name}",
+            "from":
+            "onboarding@resend.dev",
 
-            "html": f"""
+            "to":
+            [recipient_email],
 
-            <h2>Hello {recipient_name},</h2>
+            "subject":
+            f"AI Audit Report — {company_name}",
+
+            "html":
+            f"""
+            <h2>Hello {recipient_name}</h2>
 
             <p>
-
-            Your AI-powered business audit
-            report has been generated successfully.
-
+            Your AI audit report is attached.
             </p>
-
-            <p>
-
-            Please find your personalized
-            PDF audit report attached.
-
-            </p>
-
-            <br>
-
-            <p>
-
-            — Automated Lead Intake System
-
-            </p>
-
             """,
 
             "attachments": [
@@ -66,27 +53,31 @@ def send_report_email(
                 {
 
                     "filename":
-                    os.path.basename(pdf_path),
+                    os.path.basename(
+                        pdf_path
+                    ),
 
                     "content":
-                    open(pdf_path, "rb").read()
+                    pdf_content
 
                 }
 
             ]
 
-        }
+        })
 
-        resend.Emails.send(params)
-
-        print("\n===== EMAIL SENT =====")
+        print(
+            "\n===== EMAIL SENT ====="
+        )
 
         return True
 
     except Exception as e:
 
-        print("\n===== EMAIL ERROR =====")
+        print(
+            "\n===== EMAIL ERROR ====="
+        )
 
-        print(str(e))
+        print(e)
 
         return False
