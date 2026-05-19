@@ -1,89 +1,66 @@
 import os
 
-from google.oauth2.credentials import Credentials
-
-from google_auth_oauthlib.flow import InstalledAppFlow
-
-from google.auth.transport.requests import Request
+from google.oauth2.service_account import Credentials
 
 from googleapiclient.discovery import build
 
 from googleapiclient.http import MediaFileUpload
 
-import pickle
 
-from dotenv import load_dotenv
-
-load_dotenv()
 
 SCOPES = [
-    "https://www.googleapis.com/auth/drive.file"
+
+    "https://www.googleapis.com/auth/drive"
+
 ]
 
 
-def authenticate_drive():
 
-    creds = None
+def upload_pdf_to_drive(
 
-    # TOKEN FILE
-    if os.path.exists("token.pickle"):
+    pdf_path
 
-        with open("token.pickle", "rb") as token:
-
-            creds = pickle.load(token)
-
-    # LOGIN FLOW
-    if not creds or not creds.valid:
-
-        if creds and creds.expired and creds.refresh_token:
-
-            creds.refresh(Request())
-
-        else:
-
-            flow = InstalledAppFlow.from_client_secrets_file(
-
-                "credentials/google_credentials.json",
-
-                SCOPES
-
-            )
-
-            creds = flow.run_local_server(
-                port=0
-            )
-
-        # SAVE TOKEN
-        with open("token.pickle", "wb") as token:
-
-            pickle.dump(creds, token)
-
-    return creds
-
-
-def upload_pdf_to_drive(pdf_path):
+):
 
     try:
 
-        creds = authenticate_drive()
+        creds = Credentials.from_service_account_file(
+
+            "credentials/google_credentials.json",
+
+            scopes=SCOPES
+
+        )
 
         service = build(
+
             "drive",
+
             "v3",
+
             credentials=creds
+
         )
 
         folder_id = os.getenv(
+
             "GOOGLE_DRIVE_FOLDER_ID"
+
         )
 
-        file_metadata = {
+        metadata = {
 
-            "name": os.path.basename(
+            "name":
+
+            os.path.basename(
+
                 pdf_path
+
             ),
 
-            "parents": [folder_id]
+            "parents":
+
+            [folder_id]
 
         }
 
@@ -95,9 +72,9 @@ def upload_pdf_to_drive(pdf_path):
 
         )
 
-        uploaded_file = service.files().create(
+        uploaded = service.files().create(
 
-            body=file_metadata,
+            body=metadata,
 
             media_body=media,
 
@@ -105,16 +82,28 @@ def upload_pdf_to_drive(pdf_path):
 
         ).execute()
 
-        print("\n===== PDF UPLOADED =====")
+        print(
 
-        print(uploaded_file.get("id"))
+            "\n===== DRIVE UPLOADED ====="
+
+        )
+
+        print(
+
+            uploaded["id"]
+
+        )
 
         return True
 
     except Exception as e:
 
-        print("\n===== DRIVE ERROR =====")
+        print(
 
-        print(str(e))
+            "\n===== DRIVE ERROR ====="
+
+        )
+
+        print(e)
 
         return False
