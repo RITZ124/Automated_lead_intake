@@ -43,7 +43,7 @@ def authenticate_drive():
 
             flow = InstalledAppFlow.from_client_secrets_file(
 
-                "credentials/oauth_credentials.json",
+                "credentials/google_credentials.json",
 
                 SCOPES
 
