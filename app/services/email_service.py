@@ -1,12 +1,14 @@
 import os
 
-import smtplib
-
-from email.message import EmailMessage
+import resend
 
 from dotenv import load_dotenv
 
 load_dotenv()
+
+resend.api_key = os.getenv(
+    "RESEND_API_KEY"
+)
 
 
 def send_report_email(
@@ -23,81 +25,59 @@ def send_report_email(
 
     try:
 
-        sender_email = os.getenv(
-            "EMAIL_ADDRESS"
-        )
+        params = {
 
-        app_password = os.getenv(
-            "EMAIL_APP_PASSWORD"
-        )
+            "from": "onboarding@resend.dev",
 
-        # EMAIL MESSAGE
-        msg = EmailMessage()
+            "to": [recipient_email],
 
-        msg["Subject"] = (
-            f"Your AI Business Audit Report - "
-            f"{company_name}"
-        )
+            "subject": f"AI Audit Report for {company_name}",
 
-        msg["From"] = sender_email
+            "html": f"""
 
-        msg["To"] = recipient_email
+            <h2>Hello {recipient_name},</h2>
 
-        # EMAIL BODY
-        msg.set_content(f"""
+            <p>
 
-Hello {recipient_name},
+            Your AI-powered business audit
+            report has been generated successfully.
 
-Thank you for submitting your company details.
+            </p>
 
-We analyzed your business and generated a personalized AI-powered audit report.
+            <p>
 
-Please find the attached PDF report.
+            Please find your personalized
+            PDF audit report attached.
 
-Regards,
-Automated Lead Intake System
+            </p>
 
-""")
+            <br>
 
-        # ATTACH PDF
-        with open(pdf_path, "rb") as file:
+            <p>
 
-            file_data = file.read()
+            — Automated Lead Intake System
 
-            file_name = os.path.basename(
-                pdf_path
-            )
+            </p>
 
-        msg.add_attachment(
+            """,
 
-            file_data,
+            "attachments": [
 
-            maintype="application",
+                {
 
-            subtype="pdf",
+                    "filename":
+                    os.path.basename(pdf_path),
 
-            filename=file_name
+                    "content":
+                    open(pdf_path, "rb").read()
 
-        )
+                }
 
-        # SMTP SERVER
-        with smtplib.SMTP_SSL(
+            ]
 
-            "smtp.gmail.com",
+        }
 
-            465
-
-        ) as smtp:
-
-            smtp.login(
-
-                sender_email,
-
-                app_password
-
-            )
-
-            smtp.send_message(msg)
+        resend.Emails.send(params)
 
         print("\n===== EMAIL SENT =====")
 
