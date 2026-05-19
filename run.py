@@ -2,7 +2,8 @@ from flask import Flask, send_from_directory
 
 from app.extensions import db
 from app.routes.lead_routes import lead_bp
-
+import os
+import json
 app = Flask(
     __name__,
     template_folder="app/templates",
