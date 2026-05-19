@@ -14,7 +14,7 @@ SCOPES = [
 ]
 
 SERVICE_ACCOUNT_FILE = (
-    "credentials/automatedleadintake-5046420a4b1a.json"
+    "credentials/google_credentials.json"
 )
 
 
